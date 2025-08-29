@@ -85,7 +85,11 @@ export default function Page6({ theme, onBack }) {
       speed: Number(speed) || 0,
     };
     const sprites = {};
-    if (spriteUrl.trim()) sprites.front_default = spriteUrl.trim();
+    if (spriteUrl.trim()) {
+      sprites.front_default = spriteUrl.trim();
+      // ao menos garantir officialArtwork com o mesmo link
+      if (!sprites.officialArtwork) sprites.officialArtwork = sprites.front_default;
+    }
 
     return {
       name: name.trim(),

@@ -51,7 +51,11 @@ const StatBar = ({ label, value, theme }) => {
 
 // Card do Pokémon
 const PokemonCard = ({ item, theme, onLongPress, onPress }) => {
-  const imageUrl = item.sprites?.officialArtwork;
+  const imageUrl =
+    item.sprites?.officialArtwork
+    || item.sprites?.front_default
+    || item.sprites?.other?.['official-artwork']?.front_default
+    || null;
   return (
     <TouchableOpacity
       style={[styles.pokemonBox, { backgroundColor: theme.card }]}
@@ -97,20 +101,24 @@ export default function Page2({
     }
     const animated = selectedPokemon?.sprites?.animated;
     const official = selectedPokemon?.sprites?.officialArtwork;
+    const front = selectedPokemon?.sprites?.front_default;
 
-    const hasAnimated = typeof animated === "string" && animated.trim().length > 0;
-    const hasOfficial = typeof official === "string" && official.trim().length > 0;
-
-    setGifUri(hasAnimated ? animated : hasOfficial ? official : null);
+    const has = (s) => typeof s === "string" && s.trim().length > 0;
+    setGifUri(
+      has(animated) ? animated : has(official) ? official : has(front) ? front : null
+    );
   }, [selectedPokemon]);
 
   const handleGifError = () => {
-    // Se o GIF falhar, tenta a oficial; se já estiver na oficial ou não existir, usa placeholder
+    // Se a imagem atual falhar, tenta a próxima opção de fallback
     const official = selectedPokemon?.sprites?.officialArtwork;
-    const hasOfficial = typeof official === "string" && official.trim().length > 0;
+    const front = selectedPokemon?.sprites?.front_default;
+    const has = (s) => typeof s === "string" && s.trim().length > 0;
 
-    if (gifUri && hasOfficial && gifUri !== official) {
+    if (gifUri && has(official) && gifUri !== official) {
       setGifUri(official);
+    } else if (gifUri && has(front) && gifUri !== front) {
+      setGifUri(front);
     } else {
       setGifUri(null); // força placeholder
     }

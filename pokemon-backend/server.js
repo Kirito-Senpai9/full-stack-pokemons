@@ -21,18 +21,41 @@ const pool = new Pool({
 });
 
 // ====== Helpers de conversão (COM A CORREÇÃO) ======
+function safeParse(value, fallback) {
+  if (value == null) return fallback;
+  if (typeof value === 'string') {
+    try { return JSON.parse(value); } catch { return fallback; }
+  }
+  return value; // já é objeto/array
+}
+
 function mapRow(row) {
-  // Esta função agora converte as strings JSON do banco de dados de volta para objetos,
-  // corrigindo os bugs de exibição no aplicativo.
+  const types = safeParse(row.types, []);
+  const stats = safeParse(row.stats, {});
+  const abilities = safeParse(row.abilities, []);
+  const rawSprites = safeParse(row.sprites, {});
+
+  // Derivar arte oficial e animado com fallbacks robustos
+  const officialArtwork =
+    rawSprites.officialArtwork
+    || rawSprites?.other?.['official-artwork']?.front_default
+    || rawSprites.front_default
+    || null;
+
+  const animated =
+    rawSprites.animated
+    || rawSprites?.versions?.['generation-v']?.['black-white']?.animated?.front_default
+    || null;
+
   return {
     id: row.id,
     name: row.name,
-    types: JSON.parse(row.types || '[]'),
-    stats: JSON.parse(row.stats || '{}'),
+    types,
+    stats,
     height: row.height,
     weight: row.weight,
-    abilities: JSON.parse(row.abilities || '[]'),
-    sprites: JSON.parse(row.sprites || '{}'),
+    abilities,
+    sprites: { ...rawSprites, officialArtwork, animated },
   };
 }
 
