@@ -32,7 +32,7 @@ export default function Page1({
               style={[ styles.button, { backgroundColor: theme.primary, opacity: name.trim() === '' ? 0.5 : 1 }]}
               disabled={name.trim() === ''}
             >
-              <Text style={styles.buttonText}>CLIQUE AQUI E CONTINUE</Text>
+              <Text style={styles.buttonText}>CLIQUE AQUI E CONTINUE!</Text>
             </Pressable>
           </Animated.View>
         )}
